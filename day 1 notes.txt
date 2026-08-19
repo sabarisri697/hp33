@@ -1,0 +1,10 @@
+one clean prompt
+Role
+Task
+Context
+Constraints
+Format
+--------------------------------------------------------------------------------------------------------------------
+i you want a clear answer by ai you the propt - think step by step
+--------------------------------------------------------------------------------------------------------------------
+  WITHOUT JARGON - it limts the technical words and prduce output in simple words

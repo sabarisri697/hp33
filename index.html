@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Velora Fashion</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #fffaf7;
+            color: #333;
+        }
+
+        /* NAVBAR */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 8%;
+            background: white;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 30px;
+            font-weight: bold;
+            color: #8b4b3a;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            margin-left: 30px;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            color: #8b4b3a;
+        }
+
+        /* HERO */
+        .hero {
+            min-height: 570px;
+            padding: 70px 8%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(135deg, #f8e6df, #fffaf7);
+        }
+
+        .hero-text {
+            max-width: 550px;
+        }
+
+        .hero-text h1 {
+            font-size: 62px;
+            line-height: 1.1;
+            color: #542f27;
+            margin-bottom: 20px;
+        }
+
+        .hero-text p {
+            font-size: 18px;
+            line-height: 1.7;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #8b4b3a;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #623328;
+            transform: translateY(-3px);
+        }
+
+        .hero-dress {
+            width: 430px;
+            height: 430px;
+            border-radius: 50%;
+            background: linear-gradient(145deg, #e6b9aa, #fff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 150px;
+            box-shadow: 0 20px 50px rgba(100,50,30,0.18);
+        }
+
+        /* SECTION */
+        .section {
+            padding: 75px 8%;
+            text-align: center;
+        }
+
+        .section h2 {
+            font-size: 40px;
+            color: #542f27;
+            margin-bottom: 10px;
+        }
+
+        .section > p {
+            color: #777;
+            margin-bottom: 40px;
+        }
+
+        /* CATEGORIES */
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        .category {
+            padding: 35px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+            transition: 0.3s;
+        }
+
+        .category:hover {
+            transform: translateY(-8px);
+        }
+
+        .category-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .category h3 {
+            color: #542f27;
+        }
+
+        /* PRODUCTS */
+        .products {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 25px;
+        }
+
+        .product {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+            transition: 0.3s;
+        }
+
+        .product:hover {
+            transform: translateY(-8px);
+        }
+
+        .product-img {
+            height: 270px;
+            background: #f2ded7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 100px;
+        }
+
+        .product-info {
+            padding: 20px;
+            text-align: left;
+        }
+
+        .product-info h3 {
+            color: #542f27;
+            margin-bottom: 8px;
+        }
+
+        .product-info p {
+            color: #888;
+            margin-bottom: 12px;
+        }
+
+        .price {
+            color: #8b4b3a;
+            font-size: 21px;
+            font-weight: bold;
+        }
+
+        /* OFFER */
+        .offer {
+            margin: 20px 8% 70px;
+            padding: 60px 30px;
+            border-radius: 25px;
+            text-align: center;
+            background: linear-gradient(135deg, #542f27, #9b5c4b);
+            color: white;
+        }
+
+        .offer h2 {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .offer p {
+            font-size: 18px;
+            margin-bottom: 25px;
+        }
+
+        .offer .btn {
+            background: white;
+            color: #8b4b3a;
+        }
+
+        /* FOOTER */
+        footer {
+            background: #542f27;
+            color: white;
+            text-align: center;
+            padding: 35px;
+        }
+
+        footer h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        footer p {
+            margin: 7px;
+            color: #eee;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                gap: 50px;
+            }
+
+            .hero-text h1 {
+                font-size: 45px;
+            }
+
+            .categories,
+            .products {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            nav a {
+                margin: 0 7px;
+            }
+
+            .hero-dress {
+                width: 280px;
+                height: 280px;
+                font-size: 90px;
+            }
+
+            .categories,
+            .products {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVIGATION -->
+    <header>
+
+        <div class="logo">
+            Velora 👗
+        </div>
+
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#categories">Categories</a>
+            <a href="#collection">Collection</a>
+            <a href="#offers">Offers</a>
+            <a href="#contact">Contact</a>
+        </nav>
+
+    </header>
+
+
+    <!-- HERO -->
+    <section class="hero" id="home">
+
+        <div class="hero-text">
+
+            <h1>
+                Dress Your
+                <br>
+                Confidence
+            </h1>
+
+            <p>
+                Discover beautiful dresses designed for
+                every occasion. Find your style, express
+                yourself and feel confident.
+            </p>
+
+            <a href="#collection" class="btn">
+                Shop Collection
+            </a>
+
+        </div>
+
+        <div class="hero-dress">
+            👗
+        </div>
+
+    </section>
+
+
+    <!-- CATEGORIES -->
+    <section class="section" id="categories">
+
+        <h2>Shop By Category</h2>
+
+        <p>Find the perfect outfit for every occasion.</p>
+
+        <div class="categories">
+
+            <div class="category">
+                <div class="category-icon">👗</div>
+                <h3>Party Wear</h3>
+            </div>
+
+            <div class="category">
+                <div class="category-icon">👚</div>
+                <h3>Casual Wear</h3>
+            </div>
+
+            <div class="category">
+                <div class="category-icon">🥻</div>
+                <h3>Traditional</h3>
+            </div>
+
+            <div class="category">
+                <div class="category-icon">👔</div>
+                <h3>Formal Wear</h3>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- PRODUCTS -->
+    <section class="section" id="collection">
+
+        <h2>Trending Collection</h2>
+
+        <p>Our most popular styles this season.</p>
+
+        <div class="products">
+
+            <div class="product">
+
+                <div class="product-img">
+                    👗
+                </div>
+
+                <div class="product-info">
+                    <h3>Floral Summer Dress</h3>
+                    <p>Light and comfortable</p>
+                    <div class="price">₹1,299</div>
+                </div>
+
+            </div>
+
+
+            <div class="product">
+
+                <div class="product-img">
+                    👚
+                </div>
+
+                <div class="product-info">
+                    <h3>Elegant Party Dress</h3>
+                    <p>Perfect for special occasions</p>
+                    <div class="price">₹1,899</div>
+                </div>
+
+            </div>
+
+
+            <div class="product">
+
+                <div class="product-img">
+                    🥻
+                </div>
+
+                <div class="product-info">
+                    <h3>Traditional Saree</h3>
+                    <p>Classic and beautiful</p>
+                    <div class="price">₹2,499</div>
+                </div>
+
+            </div>
+
+
+            <div class="product">
+
+                <div class="product-img">
+                    👗
+                </div>
+
+                <div class="product-info">
+                    <h3>Evening Gown</h3>
+                    <p>Elegant evening style</p>
+                    <div class="price">₹2,999</div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- OFFER -->
+    <section class="offer" id="offers">
+
+        <h2>✨ Big Fashion Sale ✨</h2>
+
+        <p>
+            Get up to 50% OFF on selected dresses.
+        </p>
+
+        <a href="#collection" class="btn">
+            Shop Offers
+        </a>
+
+    </section>
+
+
+    <!-- FOOTER -->
+    <footer id="contact">
+
+        <h3>Velora Fashion 👗</h3>
+
+        <p>
+            Style • Comfort • Confidence
+        </p>
+
+        <p>
+            © 2026 Velora Fashion. All Rights Reserved.
+        </p>
+
+    </footer>
+
+</body>
+</html>
