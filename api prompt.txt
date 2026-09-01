@@ -1,0 +1,13 @@
+api prompt
+"Act as a Senior Python Backend Engineer specializing in FastAPI.
+
+Context: We are building an authentication microservice for an ed-tech platform using JWT and OAuth2 password bearer.
+Task: Write a complete '/api/v1/auth/login' POST endpoint function.
+Constraints: 
+ -Use Pydantic v2 for request validation (email and password).
+ - Verify passwords using bcrypt hashing.
+ - Return a 401 HTTPException with clear error details on failure.
+ - Do not include database connection setup; use mock dependencies.
+
+Output Format: Return only standard, PEP-8 compliant Python code with type annotations and inline
+docstrings.
