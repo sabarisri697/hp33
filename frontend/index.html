@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Event Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background Wallpaper Layer -->
+  <div class="bg-image-layer"></div>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo-icon">🏛️ EMS</div>
+      <h2>Campus EMS</h2>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul>
+        <li>
+          <a href="#" class="nav-link active" data-target="dashboard-section">
+            <span class="icon">📊</span>
+            <span class="label">Dashboard</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link" data-target="catalog-section">
+            <span class="icon">📅</span>
+            <span class="label">Upcoming Events</span>
+          </a>
+        </li>
+        <li>
+          <a href="#" class="nav-link" data-target="bookings-section">
+            <span class="icon">🎟️</span>
+            <span class="label">My Bookings</span>
+          </a>
+        </li>
+        <li class="admin-only">
+          <a href="#" class="nav-link" data-target="attendees-section">
+            <span class="icon">👥</span>
+            <span class="label">Attendee Lists</span>
+          </a>
+        </li>
+        <li class="admin-only">
+          <a href="#" class="nav-link" data-target="reports-section">
+            <span class="icon">📈</span>
+            <span class="label">Event Reports</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-info">
+        <span class="user-avatar" id="user-avatar-initials">AD</span>
+        <div class="user-details">
+          <span class="user-name" id="user-display-name">Admin User</span>
+          <span class="user-role" id="user-display-role">Administrator</span>
+        </div>
+      </div>
+      <button class="btn-logout" id="logout-btn" title="Logout">🚪</button>
+    </div>
+  </aside>
+
+  <!-- Main Layout Container -->
+  <div class="main-wrapper">
+    
+    <!-- Header -->
+    <header class="top-header">
+      <button class="mobile-toggle" id="menu-toggle">☰</button>
+      <div class="header-title">
+        <h1 id="page-title">Dashboard</h1>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="role-toggle-btn">🔄 Switch to Attendee View</button>
+        <button class="btn btn-primary admin-only" id="open-create-modal">✨ + Create Event</button>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+      <!-- SECTION 1: DASHBOARD OVERVIEW -->
+      <section id="dashboard-section" class="app-section active">
+        <!-- Hero Banner with Background Image -->
+        <div class="card hero-banner">
+          <div class="hero-content">
+            <h2>🎓 Welcome Back to Campus EMS</h2>
+            <p>Manage, discover, and organize campus events effortlessly in one place.</p>
+          </div>
+        </div>
+
+        <div class="summary-cards">
+          <div class="card stat-card">
+            <div class="stat-icon purple">🗓️</div>
+            <div class="stat-data">
+              <span class="stat-value" id="stat-total-events">12</span>
+              <span class="stat-label">Total Events</span>
+            </div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-icon blue">🎟️</div>
+            <div class="stat-data">
+              <span class="stat-value" id="stat-total-bookings">348</span>
+              <span class="stat-label">Total Bookings</span>
+            </div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-icon green">🎓</div>
+            <div class="stat-data">
+              <span class="stat-value" id="stat-active-users">185</span>
+              <span class="stat-label">Registered Users</span>
+            </div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-icon orange">🏫</div>
+            <div class="stat-data">
+              <span class="stat-value" id="stat-venues">5</span>
+              <span class="stat-label">Active Venues</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard-grid">
+          <div class="card grid-main">
+            <div class="card-header">
+              <h3>📌 Recent & Upcoming Events Overview</h3>
+              <button class="btn-text" onclick="switchSection('catalog-section')">View All 👀</button>
+            </div>
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Event Title</th>
+                    <th>Category</th>
+                    <th>Date & Time</th>
+                    <th>Venue</th>
+                    <th>Capacity</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboard-events-tbody">
+                  <!-- JS Injected Rows -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="card grid-side">
+            <div class="card-header">
+              <h3>⚡ System Activity</h3>
+            </div>
+            <ul class="activity-feed">
+              <li>
+                <span class="activity-badge green">RSVP</span>
+                <div class="activity-text">
+                  <strong>John Doe</strong> registered for <em>Annual Tech Symposium</em>
+                  <small>⏱️ 10 mins ago</small>
+                </div>
+              </li>
+              <li>
+                <span class="activity-badge purple">Event</span>
+                <div class="activity-text">
+                  <strong>Admin</strong> created <em>Campus Hackathon 2026</em>
+                  <small>⏱️ 1 hour ago</small>
+                </div>
+              </li>
+              <li>
+                <span class="activity-badge blue">User</span>
+                <div class="activity-text">
+                  <strong>Sarah Smith</strong> registered an attendee account
+                  <small>⏱️ 2 hours ago</small>
+                </div>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: EVENT CATALOG -->
+      <section id="catalog-section" class="app-section">
+        <div class="filter-bar card">
+          <div class="filter-group search-group">
+            <label for="search-input">🔍 Search Events</label>
+            <input type="text" id="search-input" placeholder="Search by event title...">
+          </div>
+          <div class="filter-group">
+            <label for="category-filter">🏷️ Category</label>
+            <select id="category-filter">
+              <option value="All">All Categories</option>
+              <option value="Technology">Technology</option>
+              <option value="Academic">Academic</option>
+              <option value="Cultural">Cultural</option>
+              <option value="Sports">Sports</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="venue-filter">📍 Venue</label>
+            <select id="venue-filter">
+              <option value="All">All Venues</option>
+              <option value="Main Auditorium">Main Auditorium</option>
+              <option value="Hall B">Hall B</option>
+              <option value="Science Block">Science Block</option>
+              <option value="Campus Ground">Campus Ground</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label for="date-filter">📆 Date</label>
+            <input type="date" id="date-filter">
+          </div>
+          <button class="btn btn-secondary btn-reset" id="reset-filters-btn">🔄 Reset</button>
+        </div>
+
+        <div class="events-grid" id="events-card-grid">
+          <!-- JS Injected Event Cards -->
+        </div>
+      </section>
+
+      <!-- SECTION 3: MY BOOKINGS -->
+      <section id="bookings-section" class="app-section">
+        <div class="card">
+          <div class="card-header">
+            <h3>🎫 My Registered Tickets</h3>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Ticket Code</th>
+                  <th>Event Name</th>
+                  <th>Date & Time</th>
+                  <th>Venue</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="user-bookings-tbody">
+                <!-- JS Injected Rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: ATTENDEE LISTS (ADMIN) -->
+      <section id="attendees-section" class="app-section">
+        <div class="card filter-bar-inline">
+          <div class="filter-group flex-1">
+            <label for="attendee-event-select">📋 Select Event Roster</label>
+            <select id="attendee-event-select">
+              <!-- JS Injected Options -->
+            </select>
+          </div>
+          <button class="btn btn-secondary" id="export-attendees-btn">📥 Export Roster (CSV)</button>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 id="selected-event-roster-title">Attendee Roster</h3>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Confirmation Code</th>
+                  <th>Attendee Name</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Registration Date</th>
+                </tr>
+              </thead>
+              <tbody id="attendee-roster-tbody">
+                <!-- JS Injected Rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 5: EVENT REPORTS (ADMIN) -->
+      <section id="reports-section" class="app-section">
+        <div class="summary-cards">
+          <div class="card stat-card">
+            <div class="stat-icon green">📈</div>
+            <div class="stat-data">
+              <span class="stat-value">84.5%</span>
+              <span class="stat-label">Avg Capacity Filled</span>
+            </div>
+          </div>
+          <div class="card stat-card">
+            <div class="stat-icon purple">🏆</div>
+            <div class="stat-data">
+              <span class="stat-value">Tech Symposium</span>
+              <span class="stat-label">Most Popular Event</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>📊 Event Capacity & Attendance Summary Report</h3>
+            <button class="btn btn-secondary" id="export-report-btn">📥 Export Summary Report</button>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event ID</th>
+                  <th>Title</th>
+                  <th>Category</th>
+                  <th>Capacity Limit</th>
+                  <th>Total Registered</th>
+                  <th>Occupancy Rate</th>
+                </tr>
+              </thead>
+              <tbody id="reports-tbody">
+                <!-- JS Injected Rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MODAL: CREATE / EDIT EVENT -->
+  <div class="modal-overlay" id="event-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-event-title">✨ Create New Event</h3>
+        <button class="close-modal" id="close-event-modal">&times;</button>
+      </div>
+      <form id="event-form">
+        <input type="hidden" id="event-id">
+        <div class="form-group">
+          <label for="form-title">Event Title</label>
+          <input type="text" id="form-title" required placeholder="e.g., Annual Tech Symposium">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-category">Category</label>
+            <select id="form-category" required>
+              <option value="Technology">Technology</option>
+              <option value="Academic">Academic</option>
+              <option value="Cultural">Cultural</option>
+              <option value="Sports">Sports</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="form-capacity">Capacity Limit</label>
+            <input type="number" id="form-capacity" min="1" required placeholder="100">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="form-date">Date</label>
+            <input type="date" id="form-date" required>
+          </div>
+          <div class="form-group">
+            <label for="form-time">Time</label>
+            <input type="time" id="form-time" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="form-venue">Venue</label>
+          <input type="text" id="form-venue" required placeholder="e.g., Main Auditorium">
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-event-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AUTHENTICATION (LOGIN / REGISTER) -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-card auth-card">
+      <div class="modal-header">
+        <h3 id="auth-modal-title">🔐 Sign In to EMS</h3>
+        <button class="close-modal" id="close-auth-modal">&times;</button>
+      </div>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-login">Login</button>
+        <button class="auth-tab" id="tab-register">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="login-form" class="auth-form active">
+        <div class="form-group">
+          <label for="login-username">Username</label>
+          <input type="text" id="login-username" required placeholder="Enter your username">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" required placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Login 🚀</button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="register-form" class="auth-form">
+        <div class="form-group">
+          <label for="reg-fullname">Full Name</label>
+          <input type="text" id="reg-fullname" required placeholder="e.g., Alex Johnson">
+        </div>
+        <div class="form-group">
+          <label for="reg-username">Username</label>
+          <input type="text" id="reg-username" required placeholder="Choose a username">
+        </div>
+        <div class="form-group">
+          <label for="reg-role">Account Type</label>
+          <select id="reg-role" required>
+            <option value="Attendee">Attendee</option>
+            <option value="Organizer">Organizer / Admin</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="reg-password">Password</label>
+          <input type="password" id="reg-password" required placeholder="Minimum 8 characters">
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Create Account 🎉</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
