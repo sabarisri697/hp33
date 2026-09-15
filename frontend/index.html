@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Campus Event Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="toast-stack"></div>
+
+  <div class="auth-screen" id="auth-screen">
+    <div class="auth-panel">
+      <div class="auth-brand">
+        <span class="logo-mark">EMS</span>
+        <h1>Campus Event Management</h1>
+        <p>Sign in to browse events, book seats, and manage campus activities.</p>
+      </div>
+      <div class="auth-box">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" id="tab-login">Login</button>
+          <button type="button" class="auth-tab" id="tab-register">Register</button>
+        </div>
+        <form id="login-form" class="auth-form active">
+          <label>Username
+            <input type="text" id="login-username" required autocomplete="username" placeholder="admin">
+          </label>
+          <label>Password
+            <input type="password" id="login-password" required autocomplete="current-password" placeholder="••••••••">
+          </label>
+          <p class="form-error" id="login-error"></p>
+          <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+          <div class="demo-buttons" style="margin-top: 12px; display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-secondary demo-login-btn" data-user="admin" data-pass="Admin@123" style="flex: 1; padding: 6px 8px; font-size: 12px; white-space: nowrap;">Admin Demo</button>
+            <button type="button" class="btn btn-secondary demo-login-btn" data-user="organizer" data-pass="Organizer@123" style="flex: 1; padding: 6px 8px; font-size: 12px; white-space: nowrap;">Organizer Demo</button>
+            <button type="button" class="btn btn-secondary demo-login-btn" data-user="attendee" data-pass="Attendee@123" style="flex: 1; padding: 6px 8px; font-size: 12px; white-space: nowrap;">Attendee Demo</button>
+          </div>
+          <p class="hint" style="margin-top: 8px;">Demo accounts: admin / Admin@123 · attendee / Attendee@123 · organizer / Organizer@123</p>
+        </form>
+        <form id="register-form" class="auth-form">
+          <label>Full name
+            <input type="text" id="reg-fullname" required minlength="2" placeholder="Alex Johnson">
+          </label>
+          <label>Username
+            <input type="text" id="reg-username" required minlength="3" placeholder="alexj">
+          </label>
+          <label>Email
+            <input type="email" id="reg-email" required placeholder="alex@campus.edu">
+          </label>
+          <label>Account type
+            <select id="reg-role" required>
+              <option value="attendee">Attendee</option>
+              <option value="organizer">Organizer</option>
+            </select>
+          </label>
+          <label>Password
+            <input type="password" id="reg-password" required minlength="8" placeholder="Minimum 8 characters">
+          </label>
+          <p class="form-error" id="register-error"></p>
+          <button type="submit" class="btn btn-primary btn-block">Create account</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-shell hidden" id="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <span class="logo-mark">EMS</span>
+        <div>
+          <strong>Campus EMS</strong>
+          <small>College events</small>
+        </div>
+      </div>
+      <nav>
+        <a href="#" class="nav-link active" data-target="dashboard-section">Dashboard</a>
+        <a href="#" class="nav-link" data-target="catalog-section">Events</a>
+        <a href="#" class="nav-link" data-target="bookings-section">My bookings</a>
+        <a href="#" class="nav-link staff-only" data-target="attendees-section">Participants</a>
+        <a href="#" class="nav-link staff-only" data-target="reports-section">Reports</a>
+        <a href="#" class="nav-link admin-only" data-target="users-section">Students</a>
+      </nav>
+      <div class="sidebar-footer">
+        <div class="user-chip">
+          <span class="avatar" id="user-avatar">A</span>
+          <div>
+            <strong id="user-display-name">User</strong>
+            <small id="user-display-role">attendee</small>
+          </div>
+        </div>
+        <button class="btn btn-ghost" id="logout-btn" type="button">Logout</button>
+      </div>
+    </aside>
+
+    <div class="main-wrapper">
+      <header class="top-header">
+        <button class="mobile-toggle" id="menu-toggle" type="button" aria-label="Open menu">☰</button>
+        <h1 id="page-title">Dashboard</h1>
+        <button class="btn btn-primary staff-only" id="open-create-modal" type="button">Create event</button>
+      </header>
+
+      <main class="content-area">
+        <section id="dashboard-section" class="app-section active">
+          <div class="hero">
+            <h2 id="welcome-title">Welcome</h2>
+            <p>Manage campus events, registrations, and reports from one place.</p>
+          </div>
+          <div class="summary-cards">
+            <article class="card stat"><span>Events</span><strong id="stat-total-events">0</strong></article>
+            <article class="card stat"><span>Bookings</span><strong id="stat-total-bookings">0</strong></article>
+            <article class="card stat"><span>Users</span><strong id="stat-active-users">0</strong></article>
+            <article class="card stat"><span>Venues</span><strong id="stat-venues">0</strong></article>
+          </div>
+          <div class="dashboard-grid">
+            <div class="card">
+              <div class="card-header">
+                <h3>Upcoming events</h3>
+                <button class="btn-text" type="button" data-goto="catalog-section">View all</button>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr><th>Title</th><th>Category</th><th>Date</th><th>Venue</th><th>Seats</th><th></th></tr>
+                  </thead>
+                  <tbody id="dashboard-events-tbody"></tbody>
+                </table>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Recent activity</h3>
+              <ul class="activity-feed" id="activity-feed"></ul>
+            </div>
+          </div>
+        </section>
+
+        <section id="catalog-section" class="app-section">
+          <div class="card filter-bar">
+            <label>Search
+              <input type="text" id="search-input" placeholder="Title, venue, or category">
+            </label>
+            <label>Category
+              <select id="category-filter">
+                <option value="All">All</option>
+                <option>Technology</option>
+                <option>Academic</option>
+                <option>Cultural</option>
+                <option>Sports</option>
+              </select>
+            </label>
+            <label>Venue
+              <select id="venue-filter">
+                <option value="All">All</option>
+              </select>
+            </label>
+            <label>Date
+              <input type="date" id="date-filter">
+            </label>
+            <label>When
+              <select id="timeframe-filter">
+                <option value="all">All events</option>
+                <option value="upcoming">Upcoming</option>
+                <option value="past">Past</option>
+              </select>
+            </label>
+            <button class="btn btn-secondary" id="reset-filters-btn" type="button">Reset</button>
+          </div>
+          <div class="events-grid" id="events-card-grid"></div>
+        </section>
+
+        <section id="bookings-section" class="app-section">
+          <div class="card">
+            <h3>My registered tickets</h3>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Code</th><th>Event</th><th>Date</th><th>Venue</th><th>Status</th><th></th></tr>
+                </thead>
+                <tbody id="user-bookings-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="attendees-section" class="app-section">
+          <div class="card filter-bar">
+            <label class="grow">Event roster
+              <select id="attendee-event-select"></select>
+            </label>
+            <button class="btn btn-secondary" id="export-attendees-btn" type="button">Export CSV</button>
+          </div>
+          <div class="card">
+            <h3 id="selected-event-roster-title">Attendee roster</h3>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Code</th><th>Name</th><th>Email</th><th>Role</th><th>Registered</th><th></th></tr>
+                </thead>
+                <tbody id="attendee-roster-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="reports-section" class="app-section">
+          <div class="summary-cards">
+            <article class="card stat"><span>Average occupancy</span><strong id="stat-occupancy">0%</strong></article>
+            <article class="card stat"><span>Most popular</span><strong id="stat-popular">—</strong></article>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Event and participant summary</h3>
+              <button class="btn btn-secondary" id="export-report-btn" type="button">Export CSV</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>ID</th><th>Title</th><th>Category</th><th>Capacity</th><th>Registered</th><th>Occupancy</th><th>Status</th></tr>
+                </thead>
+                <tbody id="reports-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="users-section" class="app-section">
+          <div class="card filter-bar">
+            <label class="grow">Search students
+              <input type="text" id="user-search" placeholder="Name, username, email, or role">
+            </label>
+            <button class="btn btn-primary" id="open-user-modal" type="button">Add student</button>
+          </div>
+          <div class="card">
+            <h3>Student and staff accounts</h3>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Name</th><th>Username</th><th>Email</th><th>Role</th><th></th></tr>
+                </thead>
+                <tbody id="users-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="event-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-event-title">Create event</h3>
+        <button class="close-modal" id="close-event-modal" type="button">&times;</button>
+      </div>
+      <form id="event-form">
+        <input type="hidden" id="event-id">
+        <label>Event title
+          <input type="text" id="form-title" required minlength="3" placeholder="Annual Tech Symposium">
+        </label>
+        <div class="form-row">
+          <label>Category
+            <select id="form-category" required>
+              <option>Technology</option>
+              <option>Academic</option>
+              <option>Cultural</option>
+              <option>Sports</option>
+            </select>
+          </label>
+          <label>Capacity
+            <input type="number" id="form-capacity" min="1" required placeholder="100">
+          </label>
+        </div>
+        <div class="form-row">
+          <label>Date
+            <input type="date" id="form-date" required>
+          </label>
+          <label>Time
+            <input type="time" id="form-time" required>
+          </label>
+        </div>
+        <label>Venue
+          <input type="text" id="form-venue" required minlength="2" placeholder="Main Auditorium">
+        </label>
+        <label id="status-field" class="hidden">Status
+          <select id="form-status">
+            <option value="active">Active</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </label>
+        <p class="form-error" id="event-error"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-event-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save event</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="user-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="modal-user-title">Add student</h3>
+        <button class="close-modal" id="close-user-modal" type="button">&times;</button>
+      </div>
+      <form id="user-form">
+        <input type="hidden" id="user-id">
+        <label>Full name
+          <input type="text" id="user-fullname" required minlength="2">
+        </label>
+        <label id="username-field">Username
+          <input type="text" id="user-username" minlength="3">
+        </label>
+        <label>Email
+          <input type="email" id="user-email" required>
+        </label>
+        <label>Role
+          <select id="user-role" required>
+            <option value="attendee">Attendee</option>
+            <option value="organizer">Organizer</option>
+            <option value="admin">Admin</option>
+          </select>
+        </label>
+        <label id="password-field">Password
+          <input type="password" id="user-password" minlength="8" placeholder="Minimum 8 characters">
+        </label>
+        <p class="form-error" id="user-error"></p>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-user-modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save user</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

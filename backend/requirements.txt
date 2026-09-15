@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic[email]
+python-jose[cryptography]
+python-multipart
+httpx
+pytest
+pymongo
+mongomock

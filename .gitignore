@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+backend/ems.db
+backend/test_ems.db
+backend/tests/test_ems.db
+.idea/
+.vscode/
