@@ -1,6 +1,4 @@
-const API = (window.location.origin.includes(":8000") || (window.location.protocol === "http:" && window.location.pathname.startsWith("/api")))
-  ? "/api"
-  : "http://127.0.0.1:8000/api";
+const API = "/api";
 const TOKEN_KEY = "ems_token";
 
 const state = {
@@ -116,6 +114,7 @@ function applyRoleUi() {
   document.getElementById("user-display-role").textContent = role;
   document.getElementById("user-avatar").textContent = initials(state.user.full_name);
   document.getElementById("welcome-title").textContent = `Welcome, ${state.user.full_name}`;
+  updateAiRoleContext();
 }
 
 function switchSection(id) {
@@ -595,6 +594,218 @@ document.body.addEventListener("click", async (event) => {
     toast(err.message);
   }
 });
+
+// ==========================================
+// AI ASSISTANT & RECOMMENDATIONS
+// ==========================================
+function updateAiRoleContext() {
+  const isAttendee = state.user && state.user.role === "attendee";
+  const heroDesc = document.getElementById("ai-hero-desc");
+  const chipsContainer = document.getElementById("ai-prompt-chips");
+  const promptInput = document.getElementById("ai-prompt-input");
+
+  if (heroDesc) {
+    heroDesc.textContent = isAttendee
+      ? "Get personalized campus event recommendations based on your preferences, schedule, and live seat availability."
+      : "Data-driven analytics, capacity optimization, and smart recommendations based on real campus metrics.";
+  }
+
+  if (promptInput) {
+    promptInput.placeholder = isAttendee
+      ? "Ask for event recommendations, schedule suggestions, or campus activities..."
+      : "Ask about management data, attendance patterns, capacity bottlenecks, or event advice...";
+  }
+
+  if (chipsContainer) {
+    if (isAttendee) {
+      chipsContainer.innerHTML = `
+        <button type="button" class="ai-chip" data-prompt="Recommend the best upcoming campus events for me based on open seats and category variety.">🎯 Recommended Events For Me</button>
+        <button type="button" class="ai-chip" data-prompt="What technology and academic workshops are coming up?">💻 Technology & Academic</button>
+        <button type="button" class="ai-chip" data-prompt="Find cultural festivals and sports events scheduled this semester.">🎨 Cultural & Sports Activities</button>
+        <button type="button" class="ai-chip" data-prompt="Help me plan my campus event schedule to avoid time conflicts.">📅 Schedule Advice</button>
+      `;
+    } else {
+      chipsContainer.innerHTML = `
+        <button type="button" class="ai-chip" data-prompt="Analyze overall campus event attendance, occupancy rates, and venue utilization.">📊 Overall Management Analysis</button>
+        <button type="button" class="ai-chip" data-prompt="Identify under-attended events and provide actionable strategies to boost student participation.">⚠️ Turnout & Capacity Optimization</button>
+        <button type="button" class="ai-chip" data-prompt="Recommend top campus events for students based on category variety and open seats.">🎯 Event Recommendations</button>
+        <button type="button" class="ai-chip" data-prompt="Analyze campus venue schedules, peak time slots, and potential event conflicts.">📍 Venue & Scheduling Insights</button>
+      `;
+    }
+  }
+}
+
+function formatAiMarkdown(markdownText) {
+  if (!markdownText) return "";
+  const lines = markdownText.split("\n");
+  const htmlParts = [];
+  let inUl = false;
+  let inOl = false;
+
+  for (let rawLine of lines) {
+    const line = rawLine.trim();
+
+    if (!line) {
+      if (inUl) { htmlParts.push("</ul>"); inUl = false; }
+      if (inOl) { htmlParts.push("</ol>"); inOl = false; }
+      continue;
+    }
+
+    // Process inline bold and code
+    let formatted = esc(line)
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/`(.+?)`/g, "<code>$1</code>");
+
+    // Headings
+    if (line.startsWith("#### ")) {
+      if (inUl) { htmlParts.push("</ul>"); inUl = false; }
+      if (inOl) { htmlParts.push("</ol>"); inOl = false; }
+      htmlParts.push(`<h4>${formatted.replace(/^####\s*/, "")}</h4>`);
+      continue;
+    }
+    if (line.startsWith("### ")) {
+      if (inUl) { htmlParts.push("</ul>"); inUl = false; }
+      if (inOl) { htmlParts.push("</ol>"); inOl = false; }
+      htmlParts.push(`<h3>${formatted.replace(/^###\s*/, "")}</h3>`);
+      continue;
+    }
+    if (line.startsWith("## ")) {
+      if (inUl) { htmlParts.push("</ul>"); inUl = false; }
+      if (inOl) { htmlParts.push("</ol>"); inOl = false; }
+      htmlParts.push(`<h3>${formatted.replace(/^##\s*/, "")}</h3>`);
+      continue;
+    }
+
+    // Bullet lists
+    if (line.startsWith("- ") || line.startsWith("* ")) {
+      if (inOl) { htmlParts.push("</ol>"); inOl = false; }
+      if (!inUl) { htmlParts.push("<ul>"); inUl = true; }
+      htmlParts.push(`<li>${formatted.replace(/^[-*]\s*/, "")}</li>`);
+      continue;
+    }
+
+    // Numbered lists
+    const numMatch = line.match(/^(\d+)\.\s+(.*)/);
+    if (numMatch) {
+      if (inUl) { htmlParts.push("</ul>"); inUl = false; }
+      if (!inOl) { htmlParts.push("<ol>"); inOl = true; }
+      const itemContent = esc(numMatch[2])
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/`(.+?)`/g, "<code>$1</code>");
+      htmlParts.push(`<li>${itemContent}</li>`);
+      continue;
+    }
+
+    // Normal paragraph
+    if (inUl) { htmlParts.push("</ul>"); inUl = false; }
+    if (inOl) { htmlParts.push("</ol>"); inOl = false; }
+    htmlParts.push(`<p>${formatted}</p>`);
+  }
+
+  if (inUl) htmlParts.push("</ul>");
+  if (inOl) htmlParts.push("</ol>");
+
+  return htmlParts.join("");
+}
+
+let lastAiPrompt = "";
+
+async function runAiAssistant(prompt = "", mode = "general") {
+  const loading = document.getElementById("ai-loading");
+  const emptyState = document.getElementById("ai-empty-state");
+  const errorState = document.getElementById("ai-error-state");
+  const output = document.getElementById("ai-output");
+  const submitBtn = document.getElementById("ai-submit-btn");
+  const btnText = document.getElementById("ai-btn-text");
+  const badge = document.getElementById("ai-model-badge");
+  const promptInput = document.getElementById("ai-prompt-input");
+
+  lastAiPrompt = prompt;
+  if (promptInput && prompt) promptInput.value = prompt;
+
+  // Show loading state
+  loading.classList.remove("hidden");
+  emptyState.classList.add("hidden");
+  errorState.classList.add("hidden");
+  output.classList.add("hidden");
+  if (submitBtn) submitBtn.disabled = true;
+  if (btnText) btnText.textContent = "Analyzing...";
+  if (badge) {
+    badge.textContent = "Analyzing...";
+    badge.className = "badge badge-warn";
+  }
+
+  try {
+    const res = await api("/ai/assistant", {
+      method: "POST",
+      body: { prompt, mode },
+    });
+
+    output.innerHTML = formatAiMarkdown(res.analysis);
+    output.classList.remove("hidden");
+    loading.classList.add("hidden");
+
+    if (badge) {
+      badge.textContent = res.model || "Gemini 3.8 Flash";
+      badge.className = "badge badge-ok";
+    }
+  } catch (err) {
+    console.error("AI assistant error:", err);
+    document.getElementById("ai-error-msg").textContent = err.message || "Failed to generate AI analysis.";
+    errorState.classList.remove("hidden");
+    loading.classList.add("hidden");
+
+    if (badge) {
+      badge.textContent = "Failed";
+      badge.className = "badge badge-warn";
+    }
+  } finally {
+    if (submitBtn) submitBtn.disabled = false;
+    if (btnText) btnText.textContent = "Analyze";
+  }
+}
+
+// AI Form Submission
+document.getElementById("ai-query-form").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const input = document.getElementById("ai-prompt-input");
+  runAiAssistant(input.value.trim());
+});
+
+// Quick action chips click handler
+document.getElementById("ai-prompt-chips").addEventListener("click", (e) => {
+  const chip = e.target.closest(".ai-chip");
+  if (chip && chip.dataset.prompt) {
+    runAiAssistant(chip.dataset.prompt);
+  }
+});
+
+// Initial run button in empty state
+document.getElementById("ai-initial-run-btn").addEventListener("click", () => {
+  runAiAssistant("");
+});
+
+// Retry button in error state
+document.getElementById("ai-retry-btn").addEventListener("click", () => {
+  runAiAssistant(lastAiPrompt || "");
+});
+
+// Shortcut buttons from reports and catalog
+const openAiFromReports = document.getElementById("open-ai-from-reports");
+if (openAiFromReports) {
+  openAiFromReports.addEventListener("click", () => {
+    switchSection("ai-section");
+    runAiAssistant("Analyze overall campus event attendance, occupancy rates, and venue utilization.");
+  });
+}
+
+const openAiFromCatalog = document.getElementById("open-ai-from-catalog");
+if (openAiFromCatalog) {
+  openAiFromCatalog.addEventListener("click", () => {
+    switchSection("ai-section");
+    runAiAssistant("Recommend top upcoming campus events based on open seats, popular categories, and participation.");
+  });
+}
 
 async function boot() {
   const token = localStorage.getItem(TOKEN_KEY);

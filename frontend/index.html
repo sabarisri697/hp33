@@ -4,6 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Campus Event Management System</title>
+  <meta name="description" content="Campus event management system for browsing events, booking seats, managing participant rosters, and tracking event reports.">
+  <meta property="og:title" content="Campus Event Management System">
+  <meta property="og:description" content="Campus event management system for browsing events, booking seats, managing participant rosters, and tracking event reports.">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -79,6 +82,7 @@
         <a href="#" class="nav-link staff-only" data-target="attendees-section">Participants</a>
         <a href="#" class="nav-link staff-only" data-target="reports-section">Reports</a>
         <a href="#" class="nav-link admin-only" data-target="users-section">Students</a>
+        <a href="#" class="nav-link" data-target="ai-section" id="nav-ai-link">✨ AI Assistant</a>
       </nav>
       <div class="sidebar-footer">
         <div class="user-chip">
@@ -163,6 +167,7 @@
               </select>
             </label>
             <button class="btn btn-secondary" id="reset-filters-btn" type="button">Reset</button>
+            <button class="btn btn-secondary" id="open-ai-from-catalog" type="button">✨ AI Recommendations</button>
           </div>
           <div class="events-grid" id="events-card-grid"></div>
         </section>
@@ -209,7 +214,10 @@
           <div class="card">
             <div class="card-header">
               <h3>Event and participant summary</h3>
-              <button class="btn btn-secondary" id="export-report-btn" type="button">Export CSV</button>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-secondary" id="open-ai-from-reports" type="button">✨ AI Management Analysis</button>
+                <button class="btn btn-secondary" id="export-report-btn" type="button">Export CSV</button>
+              </div>
             </div>
             <div class="table-wrap">
               <table class="data-table">
@@ -239,6 +247,74 @@
                 <tbody id="users-tbody"></tbody>
               </table>
             </div>
+          </div>
+        </section>
+
+        <section id="ai-section" class="app-section">
+          <div class="card ai-hero-card">
+            <div class="ai-hero-header">
+              <span class="tag">✨ Gemini 3.8 Flash</span>
+              <h2>AI Assistant & Management Advisor</h2>
+              <p id="ai-hero-desc">Data-driven analytics, capacity optimization, and smart recommendations based on real campus metrics.</p>
+            </div>
+            <div class="ai-quick-prompts">
+              <span class="prompt-chip-label">Quick actions:</span>
+              <div class="chips-row" id="ai-prompt-chips">
+                <button type="button" class="ai-chip" data-prompt="Analyze overall campus event attendance, occupancy rates, and venue utilization.">📊 Overall Management Analysis</button>
+                <button type="button" class="ai-chip" data-prompt="Identify under-attended events and provide actionable strategies to boost student participation.">⚠️ Turnout & Capacity Optimization</button>
+                <button type="button" class="ai-chip" data-prompt="Recommend top campus events for students based on category variety and open seats.">🎯 Event Recommendations</button>
+                <button type="button" class="ai-chip" data-prompt="Analyze campus venue schedules, peak time slots, and potential event conflicts.">📍 Venue & Scheduling Insights</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <form id="ai-query-form" class="ai-form">
+              <div class="ai-input-wrap">
+                <input type="text" id="ai-prompt-input" placeholder="Ask about management data, attendance patterns, capacity bottlenecks, or event advice..." autocomplete="off">
+                <button type="submit" class="btn btn-primary" id="ai-submit-btn">
+                  <span id="ai-btn-text">Analyze</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="card" id="ai-results-card">
+            <div class="card-header">
+              <h3 id="ai-result-heading">AI Analysis & Insights</h3>
+              <div class="ai-status-badge">
+                <span class="badge badge-ok" id="ai-model-badge">Ready</span>
+              </div>
+            </div>
+
+            <!-- Loading State -->
+            <div class="ai-loading-state hidden" id="ai-loading">
+              <div class="ai-skeleton-bar" style="width: 50%; height: 22px; margin-bottom: 14px;"></div>
+              <div class="ai-skeleton-bar" style="width: 95%; height: 16px; margin-bottom: 10px;"></div>
+              <div class="ai-skeleton-bar" style="width: 85%; height: 16px; margin-bottom: 10px;"></div>
+              <div class="ai-skeleton-bar" style="width: 75%; height: 16px; margin-bottom: 14px;"></div>
+              <div class="ai-skeleton-bar" style="width: 90%; height: 16px;"></div>
+              <p class="ai-loading-text">Analyzing live campus event data and formulating recommendations...</p>
+            </div>
+
+            <!-- Error State -->
+            <div class="ai-error-state hidden" id="ai-error-state">
+              <div style="font-size: 2rem; margin-bottom: 8px;">⚠️</div>
+              <h4>Analysis Failed</h4>
+              <p id="ai-error-msg" style="color: var(--danger); margin: 6px 0 14px;">Unable to generate AI analysis.</p>
+              <button type="button" class="btn btn-secondary" id="ai-retry-btn">Retry Analysis</button>
+            </div>
+
+            <!-- Empty State -->
+            <div class="ai-empty-state" id="ai-empty-state">
+              <div style="font-size: 2.4rem; margin-bottom: 10px;">💡</div>
+              <h4>No analysis generated yet</h4>
+              <p style="color: var(--muted); max-width: 460px; margin: 8px auto 16px; line-height: 1.5;">Click any quick action above or type a custom question to analyze real campus event metrics and receive strategic recommendations.</p>
+              <button type="button" class="btn btn-primary" id="ai-initial-run-btn">Generate Instant Analysis</button>
+            </div>
+
+            <!-- Output Container -->
+            <div class="ai-output-content hidden" id="ai-output"></div>
           </div>
         </section>
       </main>

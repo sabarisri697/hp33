@@ -1,0 +1,6 @@
+{
+  "name": "Campus Event Management System",
+  "description": "Campus event management system for browsing events, booking seats, managing participant rosters, and tracking event reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

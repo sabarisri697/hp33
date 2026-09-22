@@ -1,0 +1,27 @@
+{
+  "name": "campus-event-management-system",
+  "version": "1.0.0",
+  "description": "Campus Event Management System",
+  "main": "dist/server.cjs",
+  "scripts": {
+    "dev": "tsx server.ts",
+    "build": "esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
+    "start": "node dist/server.cjs",
+    "test": "tsx test_system.ts"
+  },
+  "dependencies": {
+    "@google/genai": "^2.24.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/jsonwebtoken": "^9.0.6",
+    "@types/node": "^20.14.0",
+    "esbuild": "^0.21.5",
+    "tsx": "^4.16.0",
+    "typescript": "^5.4.5"
+  }
+}
