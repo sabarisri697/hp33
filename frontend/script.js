@@ -117,12 +117,34 @@ function applyRoleUi() {
   updateAiRoleContext();
 }
 
+function openSidebar() {
+  els.sidebar.classList.add("open");
+  const backdrop = document.getElementById("sidebar-backdrop");
+  if (backdrop) backdrop.classList.add("active");
+  document.body.classList.add("sidebar-active");
+}
+
+function closeSidebar() {
+  els.sidebar.classList.remove("open");
+  const backdrop = document.getElementById("sidebar-backdrop");
+  if (backdrop) backdrop.classList.remove("active");
+  document.body.classList.remove("sidebar-active");
+}
+
+function toggleSidebar() {
+  if (els.sidebar.classList.contains("open")) {
+    closeSidebar();
+  } else {
+    openSidebar();
+  }
+}
+
 function switchSection(id) {
   document.querySelectorAll(".nav-link").forEach((link) => link.classList.toggle("active", link.dataset.target === id));
   document.querySelectorAll(".app-section").forEach((section) => section.classList.toggle("active", section.id === id));
   const active = document.querySelector(`.nav-link[data-target="${id}"]`);
   document.getElementById("page-title").textContent = active ? active.textContent : "Dashboard";
-  els.sidebar.classList.remove("open");
+  closeSidebar();
 }
 
 async function loadAll() {
@@ -440,7 +462,27 @@ document.getElementById("logout-btn").addEventListener("click", () => {
   showAuth();
 });
 
-document.getElementById("menu-toggle").addEventListener("click", () => els.sidebar.classList.toggle("open"));
+document.getElementById("menu-toggle").addEventListener("click", toggleSidebar);
+
+const sidebarCloseBtn = document.getElementById("sidebar-close-btn");
+if (sidebarCloseBtn) {
+  sidebarCloseBtn.addEventListener("click", closeSidebar);
+}
+
+const sidebarBackdrop = document.getElementById("sidebar-backdrop");
+if (sidebarBackdrop) {
+  sidebarBackdrop.addEventListener("click", closeSidebar);
+}
+
+// Close sidebar or modals on Escape key
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeSidebar();
+    document.querySelectorAll(".modal-overlay.active").forEach((modal) => {
+      modal.classList.remove("active");
+    });
+  }
+});
 document.querySelectorAll(".nav-link").forEach((link) => {
   link.addEventListener("click", (event) => {
     event.preventDefault();
@@ -807,7 +849,142 @@ if (openAiFromCatalog) {
   });
 }
 
+// --- Progressive Web App (PWA) Initialization ---
+let deferredInstallPrompt = null;
+
+function initPWA() {
+  const isStandalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    window.navigator.standalone === true;
+
+  const headerInstallBtn = document.getElementById("header-install-btn");
+  const sidebarInstallBtn = document.getElementById("sidebar-install-btn");
+  const iosModal = document.getElementById("ios-install-modal");
+  const closeIosBtn = document.getElementById("close-ios-install");
+  const doneIosBtn = document.getElementById("ios-install-done-btn");
+  const offlineBanner = document.getElementById("offline-banner");
+
+  const isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+
+  // Register Service Worker
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker
+        .register("/sw.js", { scope: "/" })
+        .then((reg) => {
+          console.log("[PWA] Service Worker registered with scope:", reg.scope);
+          reg.onupdatefound = () => {
+            const installing = reg.installing;
+            if (installing) {
+              installing.onstatechange = () => {
+                if (installing.state === "installed" && navigator.serviceWorker.controller) {
+                  toast("New update available! Refresh to use the latest version.");
+                }
+              };
+            }
+          };
+        })
+        .catch((err) => {
+          console.warn("[PWA] Service Worker registration failed:", err);
+        });
+    });
+  }
+
+  // Network Connectivity Monitoring
+  function updateOnlineStatus() {
+    if (!offlineBanner) return;
+    if (navigator.onLine) {
+      offlineBanner.style.display = "none";
+    } else {
+      offlineBanner.style.display = "flex";
+      toast("Offline mode: You can still browse previously cached campus events.");
+    }
+  }
+
+  window.addEventListener("online", () => {
+    updateOnlineStatus();
+    toast("Connection restored! Syncing latest campus data.");
+    if (state.user) {
+      loadAll();
+    }
+  });
+
+  window.addEventListener("offline", () => {
+    updateOnlineStatus();
+  });
+
+  updateOnlineStatus();
+
+  // If already installed in standalone mode, keep install buttons hidden
+  if (isStandalone) {
+    if (headerInstallBtn) headerInstallBtn.style.display = "none";
+    if (sidebarInstallBtn) sidebarInstallBtn.style.display = "none";
+    return;
+  }
+
+  // Show install button for iOS devices
+  if (isIOS) {
+    if (headerInstallBtn) headerInstallBtn.style.display = "inline-flex";
+    if (sidebarInstallBtn) sidebarInstallBtn.style.display = "inline-flex";
+  }
+
+  // Chromium / Android beforeinstallprompt handling
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    console.log("[PWA] beforeinstallprompt captured");
+    if (headerInstallBtn) headerInstallBtn.style.display = "inline-flex";
+    if (sidebarInstallBtn) sidebarInstallBtn.style.display = "inline-flex";
+  });
+
+  // Handle Install Button Click
+  async function triggerInstallFlow() {
+    if (deferredInstallPrompt) {
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      console.log("[PWA] User choice:", choice.outcome);
+      if (choice.outcome === "accepted") {
+        toast("Installing Campus EMS...");
+        if (headerInstallBtn) headerInstallBtn.style.display = "none";
+        if (sidebarInstallBtn) sidebarInstallBtn.style.display = "none";
+      }
+      deferredInstallPrompt = null;
+    } else if (isIOS) {
+      if (iosModal) iosModal.classList.add("active");
+    } else {
+      toast("To install Campus EMS, click the Install icon in your browser address bar or menu.");
+    }
+  }
+
+  if (headerInstallBtn) {
+    headerInstallBtn.addEventListener("click", triggerInstallFlow);
+  }
+  if (sidebarInstallBtn) {
+    sidebarInstallBtn.addEventListener("click", triggerInstallFlow);
+  }
+
+  if (closeIosBtn && iosModal) {
+    closeIosBtn.addEventListener("click", () => iosModal.classList.remove("active"));
+  }
+  if (doneIosBtn && iosModal) {
+    doneIosBtn.addEventListener("click", () => iosModal.classList.remove("active"));
+  }
+  if (iosModal) {
+    iosModal.addEventListener("click", (e) => {
+      if (e.target === iosModal) iosModal.classList.remove("active");
+    });
+  }
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    if (headerInstallBtn) headerInstallBtn.style.display = "none";
+    if (sidebarInstallBtn) sidebarInstallBtn.style.display = "none";
+    toast("🎉 Campus EMS was installed successfully!");
+  });
+}
+
 async function boot() {
+  initPWA();
   const token = localStorage.getItem(TOKEN_KEY);
   if (!token) {
     showAuth();

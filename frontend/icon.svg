@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="50%" stop-color="#0d9488" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fef08a" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#ccfbf1" />
+    </linearGradient>
+    <filter id="dropShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#042f2e" flood-opacity="0.4" />
+    </filter>
+  </defs>
+
+  <!-- Background Rounded Rect -->
+  <rect width="512" height="512" rx="108" fill="url(#bgGrad)" />
+
+  <!-- Subtle Accent Ring -->
+  <circle cx="256" cy="256" r="216" fill="none" stroke="#5eead4" stroke-opacity="0.22" stroke-width="6" />
+
+  <!-- Calendar Container -->
+  <g filter="url(#dropShadow)">
+    <!-- Calendar Body -->
+    <rect x="116" y="148" width="280" height="236" rx="28" fill="#ffffff" />
+    <!-- Calendar Header -->
+    <path d="M 116 176 C 116 160.536 128.536 148 144 148 L 368 148 C 383.464 148 396 160.536 396 176 L 396 216 L 116 216 Z" fill="#0f766e" />
+    
+    <!-- Calendar Binder Rings -->
+    <rect x="176" y="128" width="20" height="40" rx="10" fill="#f59e0b" />
+    <rect x="316" y="128" width="20" height="40" rx="10" fill="#f59e0b" />
+
+    <!-- Calendar Grid / Event Marker -->
+    <circle cx="180" cy="268" r="14" fill="#0f766e" fill-opacity="0.18" />
+    <circle cx="256" cy="268" r="14" fill="#0f766e" fill-opacity="0.18" />
+    <circle cx="332" cy="268" r="14" fill="#0f766e" fill-opacity="0.18" />
+
+    <!-- Highlighted Event (Star / Check) -->
+    <rect x="156" y="308" width="88" height="44" rx="12" fill="#0f766e" />
+    <text x="200" y="337" font-family="'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="900" fill="#ffffff" text-anchor="middle">EMS</text>
+
+    <!-- Sparkle / Star Icon on Event Day -->
+    <path d="M 332 298 L 336 312 L 350 316 L 336 320 L 332 334 L 328 320 L 314 316 L 328 312 Z" fill="url(#goldGrad)" />
+  </g>
+
+  <!-- Mortarboard / Graduation Cap floating above Calendar -->
+  <g filter="url(#dropShadow)" transform="translate(0, -10)">
+    <!-- Diamond Top -->
+    <polygon points="256,66 384,118 256,168 128,118" fill="url(#capGrad)" />
+    <!-- Cap Rim -->
+    <path d="M 184,142 L 184,178 C 184,204 328,204 328,178 L 328,142" fill="#0d9488" stroke="#ffffff" stroke-width="4" />
+    <!-- Tassel Button -->
+    <circle cx="256" cy="118" r="8" fill="#f59e0b" />
+    <!-- Tassel Ribbon & Fringe -->
+    <path d="M 256,118 Q 360,132 376,192" fill="none" stroke="#f59e0b" stroke-width="5" stroke-linecap="round" />
+    <polygon points="372,192 380,192 382,216 370,216" fill="#f59e0b" />
+  </g>
+
+  <!-- Bottom Brand Ribbon -->
+  <text x="256" y="442" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="34" font-weight="800" fill="#ffffff" text-anchor="middle" letter-spacing="4">CAMPUS EMS</text>
+  <text x="256" y="472" font-family="'Segoe UI', system-ui, -apple-system, sans-serif" font-size="16" font-weight="600" fill="#5eead4" text-anchor="middle" letter-spacing="2">EVENT MANAGEMENT</text>
+</svg>

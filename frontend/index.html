@@ -8,8 +8,22 @@
   <meta property="og:title" content="Campus Event Management System">
   <meta property="og:description" content="Campus event management system for browsing events, booking seats, managing participant rosters, and tracking event reports.">
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#0f766e">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Campus EMS">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <link rel="icon" type="image/png" sizes="192x192" href="/pwa-192x192.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon.png">
 </head>
 <body>
+  <div id="offline-banner" class="offline-banner" style="display: none;">
+    <span class="offline-dot"></span>
+    <span>Offline Mode &mdash; Showing cached campus records</span>
+  </div>
   <div id="toast-stack"></div>
 
   <div class="auth-screen" id="auth-screen">
@@ -67,13 +81,15 @@
   </div>
 
   <div class="app-shell hidden" id="app-shell">
+    <div class="sidebar-backdrop" id="sidebar-backdrop" aria-hidden="true"></div>
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-header">
         <span class="logo-mark">EMS</span>
-        <div>
+        <div class="sidebar-brand-text">
           <strong>Campus EMS</strong>
           <small>College events</small>
         </div>
+        <button class="sidebar-close-btn" id="sidebar-close-btn" type="button" aria-label="Close menu">&times;</button>
       </div>
       <nav>
         <a href="#" class="nav-link active" data-target="dashboard-section">Dashboard</a>
@@ -84,6 +100,12 @@
         <a href="#" class="nav-link admin-only" data-target="users-section">Students</a>
         <a href="#" class="nav-link" data-target="ai-section" id="nav-ai-link">✨ AI Assistant</a>
       </nav>
+      <div class="sidebar-install-wrap">
+        <button class="btn btn-pwa-install btn-block" id="sidebar-install-btn" type="button" style="display: none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Install App</span>
+        </button>
+      </div>
       <div class="sidebar-footer">
         <div class="user-chip">
           <span class="avatar" id="user-avatar">A</span>
@@ -100,7 +122,13 @@
       <header class="top-header">
         <button class="mobile-toggle" id="menu-toggle" type="button" aria-label="Open menu">☰</button>
         <h1 id="page-title">Dashboard</h1>
-        <button class="btn btn-primary staff-only" id="open-create-modal" type="button">Create event</button>
+        <div class="top-header-right">
+          <button class="btn btn-pwa-install" id="header-install-btn" type="button" style="display: none;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Install App</span>
+          </button>
+          <button class="btn btn-primary staff-only" id="open-create-modal" type="button">Create event</button>
+        </div>
       </header>
 
       <main class="content-area">
@@ -166,8 +194,10 @@
                 <option value="past">Past</option>
               </select>
             </label>
-            <button class="btn btn-secondary" id="reset-filters-btn" type="button">Reset</button>
-            <button class="btn btn-secondary" id="open-ai-from-catalog" type="button">✨ AI Recommendations</button>
+            <div class="filter-actions">
+              <button class="btn btn-secondary" id="reset-filters-btn" type="button">Reset</button>
+              <button class="btn btn-secondary" id="open-ai-from-catalog" type="button">✨ AI Recommendations</button>
+            </div>
           </div>
           <div class="events-grid" id="events-card-grid"></div>
         </section>
@@ -212,10 +242,10 @@
             <article class="card stat"><span>Most popular</span><strong id="stat-popular">—</strong></article>
           </div>
           <div class="card">
-            <div class="card-header">
+            <div class="card-header responsive-header">
               <h3>Event and participant summary</h3>
-              <div style="display: flex; gap: 8px;">
-                <button class="btn btn-secondary" id="open-ai-from-reports" type="button">✨ AI Management Analysis</button>
+              <div class="header-actions">
+                <button class="btn btn-secondary" id="open-ai-from-reports" type="button">✨ AI Analysis</button>
                 <button class="btn btn-secondary" id="export-report-btn" type="button">Export CSV</button>
               </div>
             </div>
@@ -404,6 +434,34 @@
           <button type="submit" class="btn btn-primary">Save user</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- iOS PWA Install Guide Modal -->
+  <div class="modal-overlay" id="ios-install-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Install Campus EMS</h3>
+        <button class="close-modal" id="close-ios-install" type="button">&times;</button>
+      </div>
+      <div class="ios-install-content">
+        <p class="hint" style="margin-bottom: 16px;">Install Campus EMS on your iPhone or iPad for quick offline access and full-screen experience:</p>
+        <div class="ios-step-list">
+          <div class="ios-step">
+            <span class="ios-step-num">1</span>
+            <div>Tap the <strong>Share</strong> icon in Safari's navigation bar at the bottom of the screen.</div>
+          </div>
+          <div class="ios-step">
+            <span class="ios-step-num">2</span>
+            <div>Scroll through the options and select <strong>Add to Home Screen</strong>.</div>
+          </div>
+          <div class="ios-step">
+            <span class="ios-step-num">3</span>
+            <div>Tap <strong>Add</strong> in the top-right corner. The app icon will appear on your Home Screen!</div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-block" id="ios-install-done-btn" style="margin-top: 20px;">Got It</button>
+      </div>
     </div>
   </div>
 

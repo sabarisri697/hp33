@@ -704,7 +704,7 @@ app.post("/api/events/:id/register", authenticateToken, (req: AuthRequest, res) 
     date: ev.date,
     time: ev.time,
     venue: ev.venue,
-    status: ev.status === "cancelled" ? "Cancelled" : "Confirmed",
+    status: "Confirmed",
     created_at: reg.created_at,
   });
 });
@@ -1113,6 +1113,29 @@ const possibleFrontendDirs = [
   path.join(__dirname, "../frontend"),
 ];
 const frontendDir = possibleFrontendDirs.find((dir) => fs.existsSync(dir)) || path.join(process.cwd(), "frontend");
+
+// PWA Service Worker & Manifest explicitly served with appropriate headers
+app.get("/sw.js", (_req, res) => {
+  const swPath = path.join(frontendDir, "sw.js");
+  if (fs.existsSync(swPath)) {
+    res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+    res.setHeader("Service-Worker-Allowed", "/");
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.sendFile(swPath);
+  } else {
+    res.status(404).send("Service Worker not found");
+  }
+});
+
+app.get("/manifest.json", (_req, res) => {
+  const manifestPath = path.join(frontendDir, "manifest.json");
+  if (fs.existsSync(manifestPath)) {
+    res.setHeader("Content-Type", "application/manifest+json; charset=utf-8");
+    res.sendFile(manifestPath);
+  } else {
+    res.status(404).send("Manifest not found");
+  }
+});
 
 app.use(express.static(frontendDir));
 
