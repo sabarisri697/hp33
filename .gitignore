@@ -1,9 +1,34 @@
+# Dependencies
+node_modules/
+bun.lock
+
+# Build output
+build/
+
+# Environment files and secrets
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# OS and Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Legacy Python
 .venv/
 __pycache__/
 *.pyc
 .pytest_cache/
-backend/ems.db
-backend/test_ems.db
-backend/tests/test_ems.db
-.idea/
-.vscode/
+*.db

@@ -1,4 +1,5 @@
-import express, { Request, Response, NextFunction } from "express";
+import express from "express";
+import type { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import path from "path";
 import fs from "fs";
@@ -7,7 +8,7 @@ import jwt from "jsonwebtoken";
 import { GoogleGenAI } from "@google/genai";
 
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT) || 3000;
 const SECRET_KEY = process.env.JWT_SECRET || "campus-ems-college-demo-secret-change-in-production";
 
 app.use(cors());
@@ -1009,7 +1010,14 @@ app.post("/api/ai/assistant", authenticateToken, async (req: AuthRequest, res) =
 
     if (apiKey) {
       try {
-        const ai = new GoogleGenAI({ apiKey });
+        const ai = new GoogleGenAI({
+          apiKey,
+          httpOptions: {
+            headers: {
+              "User-Agent": "aistudio-build",
+            },
+          },
+        });
         const systemInstruction = `You are the Campus Event Management System AI Analyst and Advisor.
 Your objective is to provide intelligent data-driven analysis and actionable recommendations based on real campus event management metrics.
 
@@ -1107,10 +1115,11 @@ ${Object.entries(categoryCounts).map(([cat, info]) => `   - **${cat}**: ${info.e
 });
 
 // --- Static Frontend Serving ---
+const baseDir = typeof __dirname !== "undefined" ? __dirname : process.cwd();
 const possibleFrontendDirs = [
   path.join(process.cwd(), "frontend"),
-  path.join(__dirname, "frontend"),
-  path.join(__dirname, "../frontend"),
+  path.join(baseDir, "frontend"),
+  path.join(baseDir, "../frontend"),
 ];
 const frontendDir = possibleFrontendDirs.find((dir) => fs.existsSync(dir)) || path.join(process.cwd(), "frontend");
 
